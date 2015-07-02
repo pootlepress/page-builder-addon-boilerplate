@@ -77,7 +77,7 @@ class Pootle_Page_Builder_Addon_Boilerplate{
 
 	public function init() {
 
-		if ( defined( 'POOTLEPAGE_VERSION' ) && 0 < version_compare( POOTLEPAGE_VERSION, '2.5.0' ) ) {
+		if ( class_exists( 'Pootle_Page_Builder' ) ) {
 
 			$this->add_actions();
 			$this->add_filters();
