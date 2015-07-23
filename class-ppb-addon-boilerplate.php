@@ -81,7 +81,7 @@ class Pootle_Page_Builder_Addon_Boilerplate{
 	 */
 	public function init() {
 
-		if ( defined( 'POOTLEPAGE_VERSION' ) && 0 < version_compare( POOTLEPAGE_VERSION, '2.5.0' ) ) {
+		if ( class_exists( 'Pootle_Page_Builder' ) ) {
 
 			//Add the required hooks
 			$this->add_hooks();
