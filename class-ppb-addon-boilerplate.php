@@ -1,60 +1,80 @@
 <?php
-
+/**
+ * Pootle Page Builder Addon Boilerplate main class
+ * @static string $token Plugin token
+ * @static string $url Plugin root dir url
+ * @static string $path Plugin root dir path
+ * @static string $version Plugin version
+ */
 class Pootle_Page_Builder_Addon_Boilerplate{
 
 	/**
-	 * Pootle_Page_Builder_Addon_Boilerplate Instance of main plugin class.
-	 *
-	 * @var 	object Pootle_Page_Builder_Addon_Boilerplate
+	 * @var 	Pootle_Page_Builder_Addon_Boilerplate Instance
 	 * @access  private
-	 * @since 	0.1.0
+	 * @since 	1.0.0
 	 */
 	private static $_instance = null;
 
 	/**
-	 * The token.
-	 * @var     string
+	 * @var     string Token
 	 * @access  public
-	 * @since   0.1.0
+	 * @since   1.0.0
 	 */
 	public static $token;
+
 	/**
-	 * The version number.
-	 * @var     string
+	 * @var     string Version
 	 * @access  public
-	 * @since   0.1.0
+	 * @since   1.0.0
 	 */
 	public static $version;
 
 	/**
-	 * Pootle Page Builder Addon Boilerplate plugin directory URL.
-	 *
-	 * @var 	string Plugin directory
-	 * @access  private
-	 * @since 	0.1.0
+	 * @var 	string Plugin main __FILE__
+	 * @access  public
+	 * @since 	1.0.0
+	 */
+	public static $file;
+
+	/**
+	 * @var 	string Plugin directory url
+	 * @access  public
+	 * @since 	1.0.0
 	 */
 	public static $url;
 
 	/**
-	 * Pootle Page Builder Addon Boilerplate plugin directory Path.
-	 *
-	 * @var 	string Plugin directory
-	 * @access  private
-	 * @since 	0.1.0
+	 * @var 	string Plugin directory path
+	 * @access  public
+	 * @since 	1.0.0
 	 */
 	public static $path;
+
+	/**
+	 * @var 	Pootle_Page_Builder_Addon_Boilerplate_Admin Instance
+	 * @access  public
+	 * @since 	1.0.0
+	 */
+	public $admin;
+
+	/**
+	 * @var 	Pootle_Page_Builder_Addon_Boilerplate_Public Instance
+	 * @access  public
+	 * @since 	1.0.0
+	 */
+	public $public;
 
 	/**
 	 * Main Pootle Page Builder Addon Boilerplate Instance
 	 *
 	 * Ensures only one instance of Storefront_Extension_Boilerplate is loaded or can be loaded.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 * @return Pootle_Page_Builder_Addon_Boilerplate instance
 	 */
-	public static function instance() {
+	public static function instance( $file ) {
 		if ( null == self::$_instance ) {
-			self::$_instance = new self();
+			self::$_instance = new self( $file );
 		}
 		return self::$_instance;
 	} // End instance()
@@ -62,14 +82,15 @@ class Pootle_Page_Builder_Addon_Boilerplate{
 	/**
 	 * Constructor function.
 	 * @access  private
-	 * @since   0.1.0
+	 * @since   1.0.0
 	 */
-	private function __construct() {
+	private function __construct( $file ) {
 
 		self::$token   =   'ppb-addon-boilerplate';
-		self::$url     =   plugin_dir_url( __FILE__ );
-		self::$path    =   plugin_dir_path( __FILE__ );
-		self::$version =   '0.1.0';
+		self::$file    =   plugin_dir_path( $file );
+		self::$url     =   plugin_dir_url( $file );
+		self::$path    =   plugin_dir_path( $file );
+		self::$version =   '1.0.0';
 
 		add_action( 'init', array( $this, 'init' ) );
 	} // End __construct()
@@ -77,16 +98,21 @@ class Pootle_Page_Builder_Addon_Boilerplate{
 	/**
 	 * Initiates the plugin
 	 * @action init
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	public function init() {
 
 		if ( class_exists( 'Pootle_Page_Builder' ) ) {
 
-			//Add the required hooks
-			$this->add_hooks();
+			//Initiate admin
+			$this->_admin();
 
-			// Pootlepress API Manager
+			//Initiate public
+			$this->_public();
+
+			//Mark this add on as active
+			add_filter( 'pootlepb_installed_add_ons', array( $this, 'add_on_active' ) );
+
 			/** Including PootlePress_API_Manager class */
 			require_once( plugin_dir_path( __FILE__ ) . 'pp-api/class-pp-api-manager.php' );
 			/** Instantiating PootlePress_API_Manager */
@@ -95,26 +121,53 @@ class Pootle_Page_Builder_Addon_Boilerplate{
 	} // End init()
 
 	/**
-	 * Adds the hooks required
-	 * @since 0.1.0
+	 * Initiates admin class and adds admin hooks
+	 * @since 1.0.0
 	 */
-	private function add_hooks() {
+	private function _admin() {
+		//Instantiating admin class
+		$this->admin = Pootle_Page_Builder_Addon_Boilerplate_Admin::instance();
 
-		//Adding front end JS and CSS in /assets folder
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue' ) );
+		//Row settings panel tabs
+		add_filter( 'pootlepb_row_settings_tabs', array( $this->admin, 'row_settings_tabs' ) );
+		//Row settings panel fields
+		add_filter( 'pootlepb_row_settings_fields', array( $this->admin, 'row_settings_fields' ) );
+		//Content block panel tabs
+		add_filter( 'pootlepb_content_block_tabs', array( $this->admin, 'content_block_tabs' ) );
+		//Content block panel fields
+		add_filter( 'pootlepb_content_block_fields', array( $this->admin, 'content_block_fields' ) );
 
-	} // End add_filters()
+	}
 
 	/**
-	 * Adds front end stylesheet and js
-	 * @since 0.1.0
+	 * Initiates public class and adds public hooks
+	 * @since 1.0.0
 	 */
-	public function enqueue() {
-		$token = self::$token;
-		$url = self::$url;
+	private function _public() {
+		//Instantiating public class
+		$this->public = Pootle_Page_Builder_Addon_Boilerplate_Public::instance();
 
-		wp_enqueue_style( $token . '-css', $url . '/assets/front-end.css' );
-		wp_enqueue_script( $token . '-js', $url . '/assets/front-end.js', array( 'jquery' ) );
+		//Adding front end JS and CSS in /assets folder
+		add_action( 'wp_enqueue_scripts', array( $this->public, 'enqueue' ) );
+		//Add/Modify row html attributes
+		add_filter( 'pootlepb_row_style_attributes', array( $this->public, 'row_attr' ), 10, 2 );
+		//Add/Modify content block html attributes
+		add_filter( 'pootlepb_content_block_attributes', array( $this->public, 'content_block_attr' ), 10, 2 );
+
 	} // End enqueue()
+
+	/**
+	 * Marks this add on as active on
+	 * @param array $active Active add ons
+	 * @return array Active add ons
+	 * @since 1.0.0
+	 */
+	public function add_on_active( $active ) {
+
+		// To allows ppb add ons page to fetch name, description etc.
+		$active[ self::$token ] = __FILE__;
+
+		return $active;
+	}
 
 }
