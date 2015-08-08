@@ -2,6 +2,7 @@
 /**
  * Pootle Page Builder Addon Boilerplate main class
  * @static string $token Plugin token
+ * @static string $file Plugin __FILE__
  * @static string $url Plugin root dir url
  * @static string $path Plugin root dir path
  * @static string $version Plugin version
@@ -81,6 +82,7 @@ class Pootle_Page_Builder_Addon_Boilerplate{
 
 	/**
 	 * Constructor function.
+	 * @param string $file __FILE__ of the main plugin
 	 * @access  private
 	 * @since   1.0.0
 	 */
@@ -165,7 +167,7 @@ class Pootle_Page_Builder_Addon_Boilerplate{
 	public function add_on_active( $active ) {
 
 		// To allows ppb add ons page to fetch name, description etc.
-		$active[ self::$token ] = __FILE__;
+		$active[ self::$token ] = self::$file;
 
 		return $active;
 	}

@@ -8,9 +8,11 @@ Version: 1.0.0
 Author URI: http://shramee.com/
 */
 
-/** Including Main Plugin class */
+/** Plugin admin class */
 require 'inc/class-admin.php';
+/** Plugin public class */
 require 'inc/class-public.php';
-require_once 'class-ppb-addon-boilerplate.php';
+/** Including Main Plugin class */
+require 'class-ppb-addon-boilerplate.php';
 /** Intantiating main plugin class */
 Pootle_Page_Builder_Addon_Boilerplate::instance( __FILE__ );
