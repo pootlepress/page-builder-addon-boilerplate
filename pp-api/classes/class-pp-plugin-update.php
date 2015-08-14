@@ -111,7 +111,6 @@ class PootlePress_Api_Manager_Update_Check {
 			'request'			=>	'pluginupdatecheck',
 			'slug'				=>	$this->slug,
 			'plugin_name'		=>	$this->plugin_name,
-			//'version'			=>	$transient->checked[$this->plugin_name],
 			'version'			=>	$this->software_version,
 			'product_id'		=>	$this->product_id,
 			'api_key'			=>	$this->api_key,
@@ -126,7 +125,7 @@ class PootlePress_Api_Manager_Update_Check {
 		$response = $this->plugin_information( $args );
 
 		// Displays an admin error message in the WordPress dashboard
-		$this->check_response_for_errors( $response );
+		pp_api_check_response_for_errors( $response, $this );
 
 		// Set version variables
 		if ( isset( $response ) && is_object( $response ) && $response !== false ) {
@@ -134,7 +133,6 @@ class PootlePress_Api_Manager_Update_Check {
 			$new_ver = (string)$response->new_version;
 			// Current installed plugin version
 			$curr_ver = (string)$this->software_version;
-			//$curr_ver = (string)$transient->checked[$this->plugin_name];
 		}
 
 		// If there is a new version, modify the transient to reflect an update is available
@@ -142,17 +140,7 @@ class PootlePress_Api_Manager_Update_Check {
 
 			if ( $response !== false && version_compare( $new_ver, $curr_ver, '>' ) ) {
 
-				if ( $this->plugin_or_theme == 'plugin' ) {
-
-					$transient->response[$this->plugin_name] = $response;
-
-				} else if ( $this->plugin_or_theme == 'theme' ) {
-
-					$transient->response[$this->plugin_name]['new_version'] = $response->new_version;
-					$transient->response[$this->plugin_name]['url'] = $response->url;
-					$transient->response[$this->plugin_name]['package'] = $response->package;
-
-				}
+				$transient->response[$this->plugin_name] = $response;
 
 			}
 
@@ -208,17 +196,6 @@ class PootlePress_Api_Manager_Update_Check {
 	 */
 	public function request( $false, $action, $args ) {
 
-		// Is this a plugin or a theme?
-		if ( $this->plugin_or_theme == 'plugin' ) {
-
-			$version = get_site_transient( 'update_plugins' );
-
-		} else if ( $this->plugin_or_theme == 'theme' ) {
-
-			$version = get_site_transient( 'update_themes' );
-
-		}
-
 		// Check if this plugins API is about this plugin
 		if ( isset( $args->slug ) ) {
 			if ( $args->slug != $this->slug ) {
@@ -231,7 +208,6 @@ class PootlePress_Api_Manager_Update_Check {
 		$args = array(
 			'request'			=> 'plugininformation',
 			'plugin_name'		=>	$this->plugin_name,
-			//'version'			=>	$version->checked[$this->plugin_name],
 			'version'			=>	$this->software_version,
 			'product_id'		=>	$this->product_id,
 			'api_key'			=>	$this->api_key,
@@ -247,74 +223,6 @@ class PootlePress_Api_Manager_Update_Check {
 		// If everything is okay return the $response
 		if ( isset( $response ) && is_object( $response ) && $response !== false ) {
 			return $response;
-		}
-
-	}
-
-	/**
-	 * Displays an admin error message in the WordPress dashboard
-	 * @param  object $response
-	 * @return string
-	 */
-	public function check_response_for_errors( $response ) {
-
-		if ( ! empty( $response ) ) {
-
-			if ( isset( $response->errors['no_key'] ) && $response->errors['no_key'] == 'no_key' && isset( $response->errors['no_subscription'] ) && $response->errors['no_subscription'] == 'no_subscription' ) {
-
-				add_action('admin_notices', array( $this, 'no_key_error_notice') );
-				add_action('admin_notices', array( $this, 'no_subscription_error_notice') );
-
-			} else if ( isset( $response->errors['exp_license'] ) && $response->errors['exp_license'] == 'exp_license' ) {
-
-				add_action('admin_notices', array( $this, 'expired_license_error_notice') );
-
-			}  else if ( isset( $response->errors['hold_subscription'] ) && $response->errors['hold_subscription'] == 'hold_subscription' ) {
-
-				add_action('admin_notices', array( $this, 'on_hold_subscription_error_notice') );
-
-			} else if ( isset( $response->errors['cancelled_subscription'] ) && $response->errors['cancelled_subscription'] == 'cancelled_subscription' ) {
-
-				add_action('admin_notices', array( $this, 'cancelled_subscription_error_notice') );
-
-			} else if ( isset( $response->errors['exp_subscription'] ) && $response->errors['exp_subscription'] == 'exp_subscription' ) {
-
-				add_action('admin_notices', array( $this, 'expired_subscription_error_notice') );
-
-			} else if ( isset( $response->errors['suspended_subscription'] ) && $response->errors['suspended_subscription'] == 'suspended_subscription' ) {
-
-				add_action('admin_notices', array( $this, 'suspended_subscription_error_notice') );
-
-			} else if ( isset( $response->errors['pending_subscription'] ) && $response->errors['pending_subscription'] == 'pending_subscription' ) {
-
-				add_action('admin_notices', array( $this, 'pending_subscription_error_notice') );
-
-			} else if ( isset( $response->errors['trash_subscription'] ) && $response->errors['trash_subscription'] == 'trash_subscription' ) {
-
-				add_action('admin_notices', array( $this, 'trash_subscription_error_notice') );
-
-			} else if ( isset( $response->errors['no_subscription'] ) && $response->errors['no_subscription'] == 'no_subscription' ) {
-
-				add_action('admin_notices', array( $this, 'no_subscription_error_notice') );
-
-			} else if ( isset( $response->errors['no_activation'] ) && $response->errors['no_activation'] == 'no_activation' ) {
-
-				add_action('admin_notices', array( $this, 'no_activation_error_notice') );
-
-			} else if ( isset( $response->errors['no_key'] ) && $response->errors['no_key'] == 'no_key' ) {
-
-				add_action('admin_notices', array( $this, 'no_key_error_notice') );
-
-			} else if ( isset( $response->errors['download_revoked'] ) && $response->errors['download_revoked'] == 'download_revoked' ) {
-
-				add_action('admin_notices', array( $this, 'download_revoked_error_notice') );
-
-			} else if ( isset( $response->errors['switched_subscription'] ) && $response->errors['switched_subscription'] == 'switched_subscription' ) {
-
-				add_action('admin_notices', array( $this, 'switched_subscription_error_notice') );
-
-			}
-
 		}
 
 	}

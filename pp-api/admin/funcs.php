@@ -30,5 +30,72 @@ function pp_api_error_info( $code ) {
 		default:
 			return false;
 	}
-
 }
+
+/**
+ * Displays an admin error message in the WordPress dashboard
+ *
+ * @param  object $response
+ * @param PootlePress_Api_Manager_Update_Check $this Instance
+ * @return string
+ */
+function pp_api_check_response_for_errors( $response, $this ) {
+
+	if ( ! empty( $response ) ) {
+
+		if ( isset( $response->errors['no_key'] ) && $response->errors['no_key'] == 'no_key' && isset( $response->errors['no_subscription'] ) && $response->errors['no_subscription'] == 'no_subscription' ) {
+
+			add_action('admin_notices', array( $this, 'no_key_error_notice') );
+			add_action('admin_notices', array( $this, 'no_subscription_error_notice') );
+
+		} else if ( isset( $response->errors['exp_license'] ) && $response->errors['exp_license'] == 'exp_license' ) {
+
+			add_action('admin_notices', array( $this, 'expired_license_error_notice') );
+
+		}  else if ( isset( $response->errors['hold_subscription'] ) && $response->errors['hold_subscription'] == 'hold_subscription' ) {
+
+			add_action('admin_notices', array( $this, 'on_hold_subscription_error_notice') );
+
+		} else if ( isset( $response->errors['cancelled_subscription'] ) && $response->errors['cancelled_subscription'] == 'cancelled_subscription' ) {
+
+			add_action('admin_notices', array( $this, 'cancelled_subscription_error_notice') );
+
+		} else if ( isset( $response->errors['exp_subscription'] ) && $response->errors['exp_subscription'] == 'exp_subscription' ) {
+
+			add_action('admin_notices', array( $this, 'expired_subscription_error_notice') );
+
+		} else if ( isset( $response->errors['suspended_subscription'] ) && $response->errors['suspended_subscription'] == 'suspended_subscription' ) {
+
+			add_action('admin_notices', array( $this, 'suspended_subscription_error_notice') );
+
+		} else if ( isset( $response->errors['pending_subscription'] ) && $response->errors['pending_subscription'] == 'pending_subscription' ) {
+
+			add_action('admin_notices', array( $this, 'pending_subscription_error_notice') );
+
+		} else if ( isset( $response->errors['trash_subscription'] ) && $response->errors['trash_subscription'] == 'trash_subscription' ) {
+
+			add_action('admin_notices', array( $this, 'trash_subscription_error_notice') );
+
+		} else if ( isset( $response->errors['no_subscription'] ) && $response->errors['no_subscription'] == 'no_subscription' ) {
+
+			add_action('admin_notices', array( $this, 'no_subscription_error_notice') );
+
+		} else if ( isset( $response->errors['no_activation'] ) && $response->errors['no_activation'] == 'no_activation' ) {
+
+			add_action('admin_notices', array( $this, 'no_activation_error_notice') );
+
+		} else if ( isset( $response->errors['no_key'] ) && $response->errors['no_key'] == 'no_key' ) {
+
+			add_action('admin_notices', array( $this, 'no_key_error_notice') );
+
+		} else if ( isset( $response->errors['download_revoked'] ) && $response->errors['download_revoked'] == 'download_revoked' ) {
+
+			add_action('admin_notices', array( $this, 'download_revoked_error_notice') );
+
+		} else if ( isset( $response->errors['switched_subscription'] ) && $response->errors['switched_subscription'] == 'switched_subscription' ) {
+
+			add_action('admin_notices', array( $this, 'switched_subscription_error_notice') );
+		}
+	}
+}
+
