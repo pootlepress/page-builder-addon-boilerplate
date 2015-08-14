@@ -64,8 +64,12 @@ if ( ! class_exists( 'PootlePress_API_Manager_Menu' ) ) {
 		// Add option page menu
 		public function pp_api_menu_add_menu() {
 
-			$page = add_options_page( __( $this->settings_menu_title, $this->text_domain ), __( $this->settings_menu_title, $this->text_domain ),
-				'manage_options', $this->activation_tab_key, array( $this, 'pp_api_menu_config_page' )
+			$page = add_options_page(
+				__( $this->settings_menu_title, $this->text_domain ),
+				__( $this->settings_menu_title, $this->text_domain ),
+				'manage_options',
+				$this->activation_tab_key,
+				array( $this, 'pp_api_menu_config_page' )
 			);
 			add_action( 'admin_print_styles-' . $page, array( $this, 'pp_api_menu_css_scripts' ) );
 		}
@@ -78,10 +82,8 @@ if ( ! class_exists( 'PootlePress_API_Manager_Menu' ) ) {
 				$this->deactivation_tab_key => __( $this->menu_tab_deactivation_title, $this->text_domain )
 			);
 			$current_tab   = isset( $_GET['tab'] ) ? $_GET['tab'] : $this->activation_tab_key;
-			$tab           = isset( $_GET['tab'] ) ? $_GET['tab'] : $this->activation_tab_key;
 			?>
 			<div class='wrap'>
-				<?php screen_icon(); ?>
 				<h2><?php _e( $this->settings_title, $this->text_domain ); ?></h2>
 
 				<h2 class="nav-tab-wrapper">
@@ -96,7 +98,7 @@ if ( ! class_exists( 'PootlePress_API_Manager_Menu' ) ) {
 				<form action='options.php' method='post'>
 					<div class="main">
 						<?php
-						if ( $tab == $this->activation_tab_key ) {
+						if ( $current_tab == $this->activation_tab_key ) {
 							settings_fields( $this->data_key );
 							do_settings_sections( $this->activation_tab_key );
 							submit_button( __( 'Save Changes', $this->text_domain ) );
@@ -208,8 +210,25 @@ if ( ! class_exists( 'PootlePress_API_Manager_Menu' ) ) {
 					$this->pp_api_menu_replace_license_key( $current_api_key );
 				}
 
-				//Try activating
-				$activate_results = $this->try_activating( $options );
+				$args = array(
+					'email'       => $options[ 'activation_email' ],
+					'licence_key' => $options[ 'api_key' ],
+				);
+
+				$activate_results = json_decode( $this->key_class->activate( $args ), true );
+
+				if ( $activate_results['activated'] === true ) {
+					add_settings_error( 'activate_text', 'activate_msg', __( 'Plugin activated. ', $this->text_domain ) . "{$activate_results['message']}.", 'updated' );
+					update_option( $this->activated_key, 'Activated' );
+					update_option( $this->deactivate_checkbox, 'off' );
+				}
+
+				if ( $activate_results == false ) {
+					add_settings_error( 'api_key_check_text', 'api_key_check_error', __( 'Connection failed to the License Key API server. Try again later.', $this->text_domain ), 'error' );
+					$options['api_key']                 = '';
+					$options[ 'activation_email' ] = '';
+					update_option( $this->options[ $this->activated_key ], 'Deactivated' );
+				}
 
 				//Test the results for error
 				$this->check_error( $activate_results );
@@ -219,36 +238,11 @@ if ( ! class_exists( 'PootlePress_API_Manager_Menu' ) ) {
 			return $options;
 		}
 
-		private function try_activating( $options ) {
-
-			$args = array(
-				'email'       => $options[ 'activation_email' ],
-				'licence_key' => $options[ 'api_key' ],
-			);
-
-			$activate_results = json_decode( $this->key_class->activate( $args ), true );
-
-			if ( $activate_results['activated'] === true ) {
-				add_settings_error( 'activate_text', 'activate_msg', __( 'Plugin activated. ', $this->text_domain ) . "{$activate_results['message']}.", 'updated' );
-				update_option( $this->activated_key, 'Activated' );
-				update_option( $this->deactivate_checkbox, 'off' );
-			}
-
-			if ( $activate_results == false ) {
-				add_settings_error( 'api_key_check_text', 'api_key_check_error', __( 'Connection failed to the License Key API server. Try again later.', $this->text_domain ), 'error' );
-				$options['api_key']                 = '';
-				$options[ 'activation_email' ] = '';
-				update_option( $this->options[ $this->activated_key ], 'Deactivated' );
-			}
-
-			return $activate_results;
-		}
-
 		private function check_error( $activate_results ) {
 
 			if ( ! empty( $activate_results['code'] ) ) {
 
-				//Gett error info and set error
+				//Get error info and set error
 				$error_info = pp_api_error_info( $activate_results['code'] );
 				add_settings_error( $error_info[0], $error_info[1], "{$activate_results['error']}. {$activate_results['additional info']}", 'error' );
 
@@ -302,10 +296,22 @@ if ( ! class_exists( 'PootlePress_API_Manager_Menu' ) ) {
 
 			if ( 'on' == $input && $activation_status == 'Activated' ) {
 
-				// deactivates license key activation
-				$deactivate_results = $this->try_deactivating( $args );
+				$deactivate_results = json_decode( $this->key_class->deactivate( $args ), true );
 
-				if ( 'on' == $deactivate_results ) {
+				if ( $deactivate_results['deactivated'] === true ) {
+					$update = array(
+						'api_key' => '',
+						'activation_email' => ''
+					);
+
+					$merge_options = array_merge( $this->options, $update );
+
+					update_option( $this->data_key, $merge_options );
+
+					update_option( $this->activated_key, 'Deactivated' );
+
+					add_settings_error( 'wc_am_deactivate_text', 'deactivate_msg', __( 'Plugin license deactivated. ', $this->text_domain ) . "{$deactivate_results['activations_remaining']}.", 'updated' );
+
 					return 'on';
 				}
 
@@ -313,31 +319,6 @@ if ( ! class_exists( 'PootlePress_API_Manager_Menu' ) ) {
 			} else {
 				return 'off';
 			}
-		}
-
-		private function try_deactivating( $args ) {
-
-			// deactivates license key activation
-			$deactivate_results = json_decode( $this->key_class->deactivate( $args ), true );
-
-			if ( $deactivate_results['deactivated'] === true ) {
-				$update = array(
-					'api_key'               => '',
-					'activation_email' => ''
-				);
-
-				$merge_options = array_merge( $this->options, $update );
-
-				update_option( $this->data_key, $merge_options );
-
-				update_option( $this->activated_key, 'Deactivated' );
-
-				add_settings_error( 'wc_am_deactivate_text', 'deactivate_msg', __( 'Plugin license deactivated. ', $this->text_domain ) . "{$deactivate_results['activations_remaining']}.", 'updated' );
-
-				return 'on';
-			}
-
-			return $deactivate_results;
 		}
 
 		public function pp_api_menu_wc_am_deactivate_textarea() {

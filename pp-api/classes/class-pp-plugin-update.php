@@ -253,7 +253,7 @@ class PootlePress_Api_Manager_Update_Check {
 
 	/**
 	 * Displays an admin error message in the WordPress dashboard
-	 * @param  array $response
+	 * @param  object $response
 	 * @return string
 	 */
 	public function check_response_for_errors( $response ) {
