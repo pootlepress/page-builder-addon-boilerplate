@@ -89,7 +89,7 @@ class Pootle_Page_Builder_Addon_Boilerplate{
 	private function __construct( $file ) {
 
 		self::$token   =   'ppb-addon-boilerplate';
-		self::$file    =   plugin_dir_path( $file );
+		self::$file    =   $file;
 		self::$url     =   plugin_dir_url( $file );
 		self::$path    =   plugin_dir_path( $file );
 		self::$version =   '1.0.0';
