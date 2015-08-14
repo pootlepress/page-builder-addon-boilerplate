@@ -130,20 +130,14 @@ class PootlePress_Api_Manager_Update_Check {
 		// Set version variables
 		if ( isset( $response ) && is_object( $response ) && $response !== false ) {
 			// New plugin version from the API
-			$new_ver = (string)$response->new_version;
+			$new_ver = $response->new_version;
 			// Current installed plugin version
-			$curr_ver = (string)$this->software_version;
-		}
+			$curr_ver = $this->software_version;
 
-		// If there is a new version, modify the transient to reflect an update is available
-		if ( isset( $new_ver ) && isset( $curr_ver ) ) {
-
-			if ( $response !== false && version_compare( $new_ver, $curr_ver, '>' ) ) {
+			if ( version_compare( $new_ver, $curr_ver, '>' ) ) {
 
 				$transient->response[$this->plugin_name] = $response;
-
 			}
-
 		}
 
 		return $transient;
