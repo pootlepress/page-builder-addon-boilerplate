@@ -18,53 +18,7 @@ if ( ! class_exists( 'PootlePress_API_Manager' ) ) {
 
 	class PootlePress_API_Manager extends PootlePress_API_Manager_Menu {
 
-		/** @var string Base URL to the remote upgrade API Manager server */
-		public $upgrade_url;
-		/** @var string Version */
-		public $version;
-		/** @var string Token for this plugin */
-		public $token;
-		/** @var string Plugin name */
-		public $name;
-		/** @var string Plugin name */
-		public $file;
-		/** @var string Plugin textdomain */
-		public $text_domain;
-
-		/** @var string */
-		public $plugin_url;
-		/** @var PootlePress_Api_Manager_Key Instance */
-		protected $key_class;
-
-		/**
-		 * Data defaults
-		 * @var mixed
-		 */
 		private $software_product_id;
-
-		public $data_key;
-		public $instance_key;
-		public $deactivate_checkbox_key;
-		public $activated_key;
-
-		public $deactivate_checkbox;
-		public $activation_tab_key;
-		public $deactivation_tab_key;
-		public $settings_menu_title;
-		public $settings_title;
-		public $menu_tab_activation_title;
-		public $menu_tab_deactivation_title;
-
-		public $options;
-		public $plugin_name;
-		public $product_id;
-		public $renew_license_url;
-		public $instance_id;
-		public $domain;
-		public $software_version;
-		public $plugin_or_theme;
-
-		public $update_version;
 
 		/**
 		 * Used to send any extra information.
