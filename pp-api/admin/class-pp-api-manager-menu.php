@@ -76,10 +76,7 @@ if ( ! class_exists( 'PootlePress_API_Manager_Menu' ) ) {
 			register_setting( $this->data_key, $this->data_key, array( $this, 'pp_api_menu_validate_options' ) );
 
 			// API Key
-			add_settings_section( 'api_key', __( 'API License Activation', $this->text_domain ), array(
-				$this,
-				'pp_api_menu_wc_am_api_key_text'
-			), $this->activation_tab_key );
+			add_settings_section( 'api_key', __( 'API License Activation', $this->text_domain ), '__return_false', $this->activation_tab_key );
 			add_settings_field( 'status', __( 'API License Key Status', $this->text_domain ), array(
 				$this,
 				'pp_api_menu_wc_am_api_key_status'
@@ -98,20 +95,12 @@ if ( ! class_exists( 'PootlePress_API_Manager_Menu' ) ) {
 				$this,
 				'pp_api_menu_wc_am_license_key_deactivation'
 			) );
-			add_settings_section( 'deactivate_button', __( 'API License Deactivation', $this->text_domain ), array(
-				$this,
-				'pp_api_menu_wc_am_deactivate_text'
-			), $this->deactivation_tab_key );
+			add_settings_section( 'deactivate_button', __( 'API License Deactivation', $this->text_domain ), '__return_false', $this->deactivation_tab_key );
 			add_settings_field( 'deactivate_button', __( 'Deactivate API License Key', $this->text_domain ), array(
 				$this,
 				'pp_api_menu_wc_am_deactivate_textarea'
 			), $this->deactivation_tab_key, 'deactivate_button' );
 
-		}
-
-		// Provides text for api key section
-		public function pp_api_menu_wc_am_api_key_text() {
-			//
 		}
 
 		// Returns the API License Key status from the WooCommerce API Manager on the server
@@ -126,22 +115,34 @@ if ( ! class_exists( 'PootlePress_API_Manager_Menu' ) ) {
 		// Returns API License text field
 		public function pp_api_menu_wc_am_api_key_field() {
 
-			echo "<input id='api_key' name='" . $this->data_key . "[" . 'api_key' . "]' size='25' type='text' value='" . $this->options['api_key'] . "' />";
-			if ( $this->options['api_key'] ) {
-				echo "<span class='icon-pos'><img src='" . $this->plugin_url() . "pp-api/assets/images/complete.png' title='' style='padding-bottom: 4px; vertical-align: middle; margin-right:3px;' /></span>";
-			} else {
-				echo "<span class='icon-pos'><img src='" . $this->plugin_url() . "pp-api/assets/images/warn.png' title='' style='padding-bottom: 4px; vertical-align: middle; margin-right:3px;' /></span>";
-			}
+			$this->pp_api_menu_wc_am_api_field_render( 'api_key' );
+
 		}
 
 		// Returns API License email text field
 		public function pp_api_menu_wc_am_api_email_field() {
 
-			echo "<input id='activation_email' name='" . $this->data_key . "[activation_email]' size='25' type='text' value='" . $this->options['activation_email'] . "' />";
-			if ( $this->options[ 'activation_email' ] ) {
+			$this->pp_api_menu_wc_am_api_field_render( 'activation_email' );
+
+		}
+
+		/**
+		 * @param string $key The key for the field
+		 */
+		private function pp_api_menu_wc_am_api_field_render( $key ) {
+
+			//Outputting the field
+			echo "<input id='$key' name='" . $this->data_key . "[$key]' size='25' type='text' value='" . $this->options[ $key ] . "' />";
+
+			//Adding icon
+			if ( $this->options[ $key ] ) {
+
 				echo "<span class='icon-pos'><img src='" . $this->plugin_url() . "pp-api/assets/images/complete.png' title='' style='padding-bottom: 4px; vertical-align: middle; margin-right:3px;' /></span>";
+
 			} else {
+
 				echo "<span class='icon-pos'><img src='" . $this->plugin_url() . "pp-api/assets/images/warn.png' title='' style='padding-bottom: 4px; vertical-align: middle; margin-right:3px;' /></span>";
+
 			}
 		}
 
@@ -151,7 +152,7 @@ if ( ! class_exists( 'PootlePress_API_Manager_Menu' ) ) {
 			// Load existing options, validate, and update with changes from input before returning
 			$options = $this->options;
 
-			$options['api_key']                 = trim( $input['api_key'] );
+			$options[ 'api_key' ]          = trim( $input[ 'api_key' ] );
 			$options[ 'activation_email' ] = trim( $input[ 'activation_email' ] );
 
 			/**
@@ -198,21 +199,30 @@ if ( ! class_exists( 'PootlePress_API_Manager_Menu' ) ) {
 						update_option( $this->options[ $this->activated_key ], 'Deactivated' );
 					}
 
-					if ( isset( $activate_results['code'] ) ) {
-						$error_info = pp_api_error_info( $activate_results['code'] );
-						add_settings_error( $error_info[0], $error_info[1], "{$activate_results['error']}. {$activate_results['additional info']}", 'error' );
-						$options[ 'activation_email' ] = '';
-						$options['api_key']                 = '';
-						update_option( $this->options[ $this->activated_key ], 'Deactivated' );
-
-
-					}
+					$this->check_error( $activate_results );
 
 				} // End Plugin Activation
 
 			}
 
 			return $options;
+		}
+
+		private function check_error( $activate_results ) {
+
+			if ( ! empty( $activate_results['code'] ) ) {
+
+				//Gett error info and set error
+				$error_info = pp_api_error_info( $activate_results['code'] );
+				add_settings_error( $error_info[0], $error_info[1], "{$activate_results['error']}. {$activate_results['additional info']}", 'error' );
+
+				//Get the options empty
+				$options[ 'activation_email' ] = '';
+				$options['api_key'] = '';
+
+				//Set activation status Deactivated
+				update_option( $this->options[ $this->activated_key ], 'Deactivated' );
+			}
 		}
 
 		// Returns the API License Key status from the WooCommerce API Manager on the server
@@ -281,24 +291,12 @@ if ( ! class_exists( 'PootlePress_API_Manager_Menu' ) ) {
 					return $options;
 				}
 
-				if ( isset( $activate_results['code'] ) ) {
-
-					$error_info = pp_api_error_info( $activate_results['code'] );
-					add_settings_error( $error_info[0], $error_info[1], "{$activate_results['error']}. {$activate_results['additional info']}", 'error' );
-					$options[ 'activation_email' ] = '';
-					$options['api_key']                 = '';
-					update_option( $this->options[ $this->activated_key ], 'Deactivated' );
-
-				}
+				$this->check_error( $activate_results );
 
 			} else {
 
 				return $options;
 			}
-
-		}
-
-		public function pp_api_menu_wc_am_deactivate_text() {
 		}
 
 		public function pp_api_menu_wc_am_deactivate_textarea() {
@@ -314,27 +312,8 @@ if ( ! class_exists( 'PootlePress_API_Manager_Menu' ) ) {
 		// Loads admin style sheets
 		public function pp_api_menu_css_scripts() {
 
-			wp_register_style( $this->data_key . '-css', $this->plugin_url() . 'pp-api/assets/css/admin-settings.css', array(), $this->version, 'all' );
-			wp_enqueue_style( $this->data_key . '-css' );
+			wp_enqueue_style( $this->data_key . '-css', $this->plugin_url() . 'pp-api/assets/css/admin-settings.css', array(), $this->version, 'all' );
+
 		}
-
 	}
-
-	/**
-	 * Output the error info from code
-	 * @param int $code The error code
-	 */
-	function pp_api_error_info( $code ) {
-		switch ( $code ) {
-			case '100': return array( 'api_email_text', 'api_email_error' );
-			case '101': return array( 'api_key_text', 'api_key_error' );
-			case '102': return array( 'api_key_purchase_incomplete_text', 'api_key_purchase_incomplete_error' );
-			case '103': return array( 'api_key_exceeded_text', 'api_key_exceeded_error' );
-			case '104': return array( 'api_key_not_activated_text', 'api_key_not_activated_error' );
-			case '105': return array( 'api_key_invalid_text', 'api_key_invalid_error' );
-			case '106': return array( 'sub_not_active_text', 'sub_not_active_error' );
-		}
-
-	}
-
 }

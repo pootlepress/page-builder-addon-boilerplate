@@ -14,6 +14,8 @@ if ( ! class_exists( 'PootlePress_API_Manager' ) ) {
 	 */
 	require plugin_dir_path( __FILE__ ) . 'admin/class-pp-api-manager-menu.php';
 
+	require plugin_dir_path( __FILE__ ) . 'admin/funcs.php';
+
 	class PootlePress_API_Manager extends PootlePress_API_Manager_Menu {
 
 		/** @var string Base URL to the remote upgrade API Manager server */
@@ -77,6 +79,7 @@ if ( ! class_exists( 'PootlePress_API_Manager' ) ) {
 			$this->token       = $token;
 			$this->name        = $name;
 			$this->file        = $file;
+
 			if ( $text_domain ) {
 				$this->text_domain = $text_domain;
 			} else {
@@ -270,40 +273,32 @@ if ( ! class_exists( 'PootlePress_API_Manager' ) ) {
 
 				switch_to_blog( $blog_id );
 
-				foreach (
-					array(
-						$this->data_key,
-						$this->token . '_product_id',
-						$this->instance_key,
-						$this->deactivate_checkbox_key,
-						$this->activated_key,
-					) as $option
-				) {
-
-					delete_option( $option );
-
-				}
+				$this->remove_options();
 
 				restore_current_blog();
 
 			} else {
 
-				foreach (
-					array(
-						$this->data_key,
-						$this->token . '_product_id',
-						$this->instance_key,
-						$this->deactivate_checkbox_key,
-						$this->activated_key
-					) as $option
-				) {
-
-					delete_option( $option );
-
-				}
+				$this->remove_options();
 
 			}
+		}
 
+		private function remove_options() {
+
+			foreach (
+				array(
+					$this->data_key,
+					$this->token . '_product_id',
+					$this->instance_key,
+					$this->deactivate_checkbox_key,
+					$this->activated_key,
+				) as $option
+			) {
+
+				delete_option( $option );
+
+			}
 		}
 
 		/**
