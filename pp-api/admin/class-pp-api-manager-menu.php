@@ -199,51 +199,12 @@ if ( ! class_exists( 'PootlePress_API_Manager_Menu' ) ) {
 					}
 
 					if ( isset( $activate_results['code'] ) ) {
+						$error_info = pp_api_error_info( $activate_results['code'] );
+						add_settings_error( $error_info[0], $error_info[1], "{$activate_results['error']}. {$activate_results['additional info']}", 'error' );
+						$options[ 'activation_email' ] = '';
+						$options['api_key']                 = '';
+						update_option( $this->options[ $this->activated_key ], 'Deactivated' );
 
-						switch ( $activate_results['code'] ) {
-							case '100':
-								add_settings_error( 'api_email_text', 'api_email_error', "{$activate_results['error']}. {$activate_results['additional info']}", 'error' );
-								$options[ 'activation_email' ] = '';
-								$options['api_key']                 = '';
-								update_option( $this->options[ $this->activated_key ], 'Deactivated' );
-								break;
-							case '101':
-								add_settings_error( 'api_key_text', 'api_key_error', "{$activate_results['error']}. {$activate_results['additional info']}", 'error' );
-								$options['api_key']                 = '';
-								$options[ 'activation_email' ] = '';
-								update_option( $this->options[ $this->activated_key ], 'Deactivated' );
-								break;
-							case '102':
-								add_settings_error( 'api_key_purchase_incomplete_text', 'api_key_purchase_incomplete_error', "{$activate_results['error']}. {$activate_results['additional info']}", 'error' );
-								$options['api_key']                 = '';
-								$options[ 'activation_email' ] = '';
-								update_option( $this->options[ $this->activated_key ], 'Deactivated' );
-								break;
-							case '103':
-								add_settings_error( 'api_key_exceeded_text', 'api_key_exceeded_error', "{$activate_results['error']}. {$activate_results['additional info']}", 'error' );
-								$options['api_key']                 = '';
-								$options[ 'activation_email' ] = '';
-								update_option( $this->options[ $this->activated_key ], 'Deactivated' );
-								break;
-							case '104':
-								add_settings_error( 'api_key_not_activated_text', 'api_key_not_activated_error', "{$activate_results['error']}. {$activate_results['additional info']}", 'error' );
-								$options['api_key']                 = '';
-								$options[ 'activation_email' ] = '';
-								update_option( $this->options[ $this->activated_key ], 'Deactivated' );
-								break;
-							case '105':
-								add_settings_error( 'api_key_invalid_text', 'api_key_invalid_error', "{$activate_results['error']}. {$activate_results['additional info']}", 'error' );
-								$options['api_key']                 = '';
-								$options[ 'activation_email' ] = '';
-								update_option( $this->options[ $this->activated_key ], 'Deactivated' );
-								break;
-							case '106':
-								add_settings_error( 'sub_not_active_text', 'sub_not_active_error', "{$activate_results['error']}. {$activate_results['additional info']}", 'error' );
-								$options['api_key']                 = '';
-								$options[ 'activation_email' ] = '';
-								update_option( $this->options[ $this->activated_key ], 'Deactivated' );
-								break;
-						}
 
 					}
 
@@ -322,50 +283,11 @@ if ( ! class_exists( 'PootlePress_API_Manager_Menu' ) ) {
 
 				if ( isset( $activate_results['code'] ) ) {
 
-					switch ( $activate_results['code'] ) {
-						case '100':
-							add_settings_error( 'api_email_text', 'api_email_error', "{$activate_results['error']}. {$activate_results['additional info']}", 'error' );
-							$options[ 'activation_email' ] = '';
-							$options['api_key']                 = '';
-							update_option( $this->options[ $this->activated_key ], 'Deactivated' );
-							break;
-						case '101':
-							add_settings_error( 'api_key_text', 'api_key_error', "{$activate_results['error']}. {$activate_results['additional info']}", 'error' );
-							$options['api_key']                 = '';
-							$options[ 'activation_email' ] = '';
-							update_option( $this->options[ $this->activated_key ], 'Deactivated' );
-							break;
-						case '102':
-							add_settings_error( 'api_key_purchase_incomplete_text', 'api_key_purchase_incomplete_error', "{$activate_results['error']}. {$activate_results['additional info']}", 'error' );
-							$options['api_key']                 = '';
-							$options[ 'activation_email' ] = '';
-							update_option( $this->options[ $this->activated_key ], 'Deactivated' );
-							break;
-						case '103':
-							add_settings_error( 'api_key_exceeded_text', 'api_key_exceeded_error', "{$activate_results['error']}. {$activate_results['additional info']}", 'error' );
-							$options['api_key']                 = '';
-							$options[ 'activation_email' ] = '';
-							update_option( $this->options[ $this->activated_key ], 'Deactivated' );
-							break;
-						case '104':
-							add_settings_error( 'api_key_not_activated_text', 'api_key_not_activated_error', "{$activate_results['error']}. {$activate_results['additional info']}", 'error' );
-							$options['api_key']                 = '';
-							$options[ 'activation_email' ] = '';
-							update_option( $this->options[ $this->activated_key ], 'Deactivated' );
-							break;
-						case '105':
-							add_settings_error( 'api_key_invalid_text', 'api_key_invalid_error', "{$activate_results['error']}. {$activate_results['additional info']}", 'error' );
-							$options['api_key']                 = '';
-							$options[ 'activation_email' ] = '';
-							update_option( $this->options[ $this->activated_key ], 'Deactivated' );
-							break;
-						case '106':
-							add_settings_error( 'sub_not_active_text', 'sub_not_active_error', "{$activate_results['error']}. {$activate_results['additional info']}", 'error' );
-							$options['api_key']                 = '';
-							$options[ 'activation_email' ] = '';
-							update_option( $this->options[ $this->activated_key ], 'Deactivated' );
-							break;
-					}
+					$error_info = pp_api_error_info( $activate_results['code'] );
+					add_settings_error( $error_info[0], $error_info[1], "{$activate_results['error']}. {$activate_results['additional info']}", 'error' );
+					$options[ 'activation_email' ] = '';
+					$options['api_key']                 = '';
+					update_option( $this->options[ $this->activated_key ], 'Deactivated' );
 
 				}
 
@@ -397,4 +319,22 @@ if ( ! class_exists( 'PootlePress_API_Manager_Menu' ) ) {
 		}
 
 	}
+
+	/**
+	 * Output the error info from code
+	 * @param int $code The error code
+	 */
+	function pp_api_error_info( $code ) {
+		switch ( $code ) {
+			case '100': return array( 'api_email_text', 'api_email_error' );
+			case '101': return array( 'api_key_text', 'api_key_error' );
+			case '102': return array( 'api_key_purchase_incomplete_text', 'api_key_purchase_incomplete_error' );
+			case '103': return array( 'api_key_exceeded_text', 'api_key_exceeded_error' );
+			case '104': return array( 'api_key_not_activated_text', 'api_key_not_activated_error' );
+			case '105': return array( 'api_key_invalid_text', 'api_key_invalid_error' );
+			case '106': return array( 'sub_not_active_text', 'sub_not_active_error' );
+		}
+
+	}
+
 }
