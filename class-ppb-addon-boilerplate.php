@@ -114,11 +114,6 @@ class Pootle_Page_Builder_Addon_Boilerplate{
 
 			//Mark this add on as active
 			add_filter( 'pootlepb_installed_add_ons', array( $this, 'add_on_active' ) );
-
-			/** Including PootlePress_API_Manager class */
-			require_once( plugin_dir_path( __FILE__ ) . 'pp-api/class-pp-api-manager.php' );
-			/** Instantiating PootlePress_API_Manager */
-			new PootlePress_API_Manager( self::$token, 'Pootle Page Builder Addon Boilerplate', self::$version, __FILE__, self::$token );
 		}
 	} // End init()
 

@@ -137,6 +137,8 @@ class PootlePress_Api_Manager_Update_Check {
 			if ( version_compare( $new_ver, $curr_ver, '>' ) ) {
 
 				$transient->response[$this->plugin_name] = $response;
+				$transient->response[$this->plugin_name]->slug        = $this->slug;
+				$transient->response[$this->plugin_name]->plugin_name = $this->plugin_name;
 			}
 		}
 
@@ -192,7 +194,7 @@ class PootlePress_Api_Manager_Update_Check {
 
 		// Check if this plugins API is about this plugin
 		if ( isset( $args->slug ) ) {
-			if ( $args->slug != $this->slug ) {
+			if ( ! in_array( $args->slug, array( $this->slug, $this->plugin_name ) ) ) {
 				return $false;
 			}
 		} else {
@@ -216,6 +218,7 @@ class PootlePress_Api_Manager_Update_Check {
 
 		// If everything is okay return the $response
 		if ( isset( $response ) && is_object( $response ) && $response !== false ) {
+			$response->slug = $this->slug;
 			return $response;
 		}
 

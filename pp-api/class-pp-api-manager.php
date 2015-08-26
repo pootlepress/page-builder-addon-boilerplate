@@ -180,7 +180,6 @@ if ( ! class_exists( 'PootlePress_API_Manager' ) ) {
 		 * Generate the default data arrays
 		 */
 		public function activation() {
-			global $wpdb;
 
 			$global_options = array(
 				'api_key'          => '',
@@ -283,7 +282,7 @@ if ( ! class_exists( 'PootlePress_API_Manager' ) ) {
 			<?php if ( ! current_user_can( 'manage_options' ) ) {
 				return;
 			} ?>
-			<?php if ( isset( $_GET['page'] ) && $this->token . '_dashboard' == $_GET['page'] ) {
+			<?php if ( ! in_array( filter_input( INPUT_GET, 'page' ), array( 'page_builder_settings', 'page_builder_addons', ) ) ) {
 				return;
 			} ?>
 			<div id="message" class="error">

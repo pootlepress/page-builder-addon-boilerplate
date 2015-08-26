@@ -16,3 +16,12 @@ require 'inc/class-public.php';
 require 'class-ppb-addon-boilerplate.php';
 /** Intantiating main plugin class */
 Pootle_Page_Builder_Addon_Boilerplate::instance( __FILE__ );
+
+/** Instantiating PootlePress_API_Manager */
+new PootlePress_API_Manager(
+	Pootle_Page_Builder_Addon_Boilerplate::$token,
+	'pootle page builder for WooCommerce',
+	Pootle_Page_Builder_Addon_Boilerplate::$version,
+	Pootle_Page_Builder_Addon_Boilerplate::$file,
+	Pootle_Page_Builder_Addon_Boilerplate::$token
+);
