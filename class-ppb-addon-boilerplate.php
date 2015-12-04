@@ -115,10 +115,6 @@ class Pootle_Page_Builder_Addon_Boilerplate{
 			//Mark this add on as active
 			add_filter( 'pootlepb_installed_add_ons', array( $this, 'add_on_active' ) );
 
-			/** Including PootlePress_API_Manager class */
-			require_once( plugin_dir_path( __FILE__ ) . 'pp-api/class-pp-api-manager.php' );
-			/** Instantiating PootlePress_API_Manager */
-			new PootlePress_API_Manager( self::$token, 'Pootle Page Builder Addon Boilerplate', self::$version, __FILE__, self::$token );
 		}
 	} // End init()
 
@@ -131,13 +127,13 @@ class Pootle_Page_Builder_Addon_Boilerplate{
 		$this->admin = Pootle_Page_Builder_Addon_Boilerplate_Admin::instance();
 
 		//Row settings panel tabs
-		add_filter( 'pootlepb_row_settings_tabs', array( $this->admin, 'row_settings_tabs' ) );
+		add_filter( 'pootlepb_row_settings_tabs',		array( $this->admin, 'row_settings_tabs' ) );
 		//Row settings panel fields
-		add_filter( 'pootlepb_row_settings_fields', array( $this->admin, 'row_settings_fields' ) );
+		add_filter( 'pootlepb_row_settings_fields',		array( $this->admin, 'row_settings_fields' ) );
 		//Content block panel tabs
-		add_filter( 'pootlepb_content_block_tabs', array( $this->admin, 'content_block_tabs' ) );
+		add_filter( 'pootlepb_content_block_tabs',		array( $this->admin, 'content_block_tabs' ) );
 		//Content block panel fields
-		add_filter( 'pootlepb_content_block_fields', array( $this->admin, 'content_block_fields' ) );
+		add_filter( 'pootlepb_content_block_fields',	array( $this->admin, 'content_block_fields' ) );
 
 	}
 
@@ -150,11 +146,11 @@ class Pootle_Page_Builder_Addon_Boilerplate{
 		$this->public = Pootle_Page_Builder_Addon_Boilerplate_Public::instance();
 
 		//Adding front end JS and CSS in /assets folder
-		add_action( 'wp_enqueue_scripts', array( $this->public, 'enqueue' ) );
+		add_action( 'wp_enqueue_scripts',					array( $this->public, 'enqueue' ) );
 		//Add/Modify row html attributes
-		add_filter( 'pootlepb_row_style_attributes', array( $this->public, 'row_attr' ), 10, 2 );
+		add_filter( 'pootlepb_row_style_attributes',		array( $this->public, 'row_attr' ), 10, 2 );
 		//Add/Modify content block html attributes
-		add_filter( 'pootlepb_content_block_attributes', array( $this->public, 'content_block_attr' ), 10, 2 );
+		add_filter( 'pootlepb_content_block_attributes',	array( $this->public, 'content_block_attr' ), 10, 2 );
 
 	} // End enqueue()
 
@@ -171,5 +167,4 @@ class Pootle_Page_Builder_Addon_Boilerplate{
 
 		return $active;
 	}
-
 }
